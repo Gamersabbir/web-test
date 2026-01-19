@@ -1,0 +1,3163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamer Sabbir Bot Control</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --accent: #ff4500; --accent-glow: rgba(255, 69, 0, 0.3); --cyan: #00bfff; --bg: #0a0a0a;
+            --surface: #151515; --surface-light: #1f1f1f; --border: #2a2a2a; --text: #e0e0e0;
+            --text-dim: #888; --success: #00ff88; --warning: #ffaa00; --danger: #ff3355;
+        }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            color: var(--text); 
+            padding: 20px;
+            font-size: 16px;
+        }
+        .container { 
+            max-width: 95%; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+        }
+        header { 
+            text-align: center; 
+            padding: 25px 0; 
+            border-bottom: 2px solid var(--border); 
+            margin-bottom: 20px; 
+            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent); 
+            flex-shrink: 0; 
+        }
+        h1 { 
+            font-size: 32px; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, var(--accent), var(--cyan)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            letter-spacing: 2px; 
+        }
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 380px; 
+            gap: 20px; 
+            height: 100%;             min-height: 0;
+        }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+       .main-panel { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            min-height: 0;
+            height: 100%;         }
+        .card { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .card.scrollable { flex-grow: 1; min-height: 0; }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-shrink: 0;         }
+        .card-title { 
+            font-size: 16px;
+            font-weight: 600; 
+            color: var(--accent); 
+            margin-bottom: 0;             text-transform: uppercase; 
+            letter-spacing: 1px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+        }
+        .card-title::before { 
+            content: ''; 
+            width: 4px;
+            height: 18px;
+            background: var(--accent); 
+            border-radius: 2px; 
+        }
+        .flash { 
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease; 
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .flash-success { background: rgba(0, 255, 136, 0.1); border-left: 3px solid var(--success); color: var(--success); }
+        .flash-danger { background: rgba(255, 51, 85, 0.1); border-left: 3px solid var(--danger); color: var(--danger); }
+        
+        input[type="text"], 
+        input[type="number"],
+        select { 
+            width: 100%; 
+            background: var(--surface-light); 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 10px 14px; 
+            color: var(--text); 
+            font-size: 14px;
+            transition: all 0.2s; 
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px var(--accent-glow); 
+        }
+        label { 
+            display: block; 
+            font-size: 12px;
+            color: var(--text-dim); 
+            margin-bottom: 6px;
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .input-group { margin-bottom: 15px; }
+        button { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--accent-glow); }
+        button:active { transform: translateY(0); }
+        .btn-cyan { background: var(--cyan); } 
+        .btn-success { background: var(--success); color: #000; } 
+        .btn-danger { background: var(--danger); }
+        .btn-sm { 
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .uid-row { 
+            display: grid; 
+            grid-template-columns: 30px 1fr auto auto;
+            gap: 12px;
+            align-items: center; 
+            padding: 10px;
+            background: var(--surface-light); 
+            border: 1px solid var(--border); 
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.2s; 
+        }
+        .uid-row:hover { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .uid-row input[type="checkbox"] { 
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent); 
+            cursor: pointer; 
+        }
+        .uid-row input[type="number"] { margin: 0; padding: 8px 12px; font-size: 14px; }
+        .emote-badge { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            padding: 6px 10px;
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            font-size: 12px;
+            min-width: 140px;
+        }
+        .emote-badge img { width: 28px; height: 28px; border-radius: 4px; }
+        .emote-badge.empty { color: var(--text-dim); font-style: italic; }
+        .uid-actions { display: flex; gap: 6px; }
+        .btn-icon { 
+            width: 32px;
+            height: 32px;
+            padding: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px;
+            background: transparent; 
+            border: 1px solid var(--border); 
+            color: var(--text-dim); 
+        }
+        .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+        #uid-container { overflow-y: auto; padding-right: 8px; }
+        
+        .emote-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 12px; 
+            overflow-y: auto;             padding: 10px; 
+            background: var(--surface-light); 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            flex-grow: 1; 
+            min-height: 0;
+            height: 100%;         }
+        .emote-grid::-webkit-scrollbar { width: 8px; } 
+        .emote-grid::-webkit-scrollbar-track { background: var(--surface); } 
+        .emote-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .emote-item { 
+            background: var(--surface); 
+            border: 2px solid transparent; 
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            position: relative; 
+        }
+        .emote-item:hover { transform: scale(1.05); border-color: var(--cyan); }
+        .emote-item.selected { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); transform: scale(1.08); }
+        .emote-item.selected::after { content: '✓'; position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+        .emote-item img { 
+            width: 56px;
+            height: 56px;
+            object-fit: contain; 
+            margin-bottom: 6px;
+            pointer-events: none; 
+        }
+        .emote-item .emote-details { 
+            font-size: 11px;
+            color: var(--text-dim); 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            pointer-events: none; 
+        }
+        .emote-item .emote-name { font-weight: bold; color: var(--text); }
+        .emote-item .emote-id { display: none; }
+        
+        .card-actions { 
+            display: flex; 
+            gap: 12px;
+        }
+        .quick-actions { display: flex; flex-direction: column; gap: 10px; }
+        .stat-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border); 
+            font-size: 14px;
+        }
+        .stat-row:last-child { border-bottom: none; } 
+        .stat-label { color: var(--text-dim); } 
+        .stat-value { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Gamer Sabbir Bot Control</h1>
+            <div class="subtitle">Developed by Dev Sabbir</div>
+        </header>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form id="main-form" action="/action" method="post" style="flex-grow: 1; min-height: 0;">
+            <input type="hidden" name="action" id="form_action">
+            <input type="hidden" name="payload" id="form_payload">
+            
+            <div class="grid">
+                <div class="main-panel">
+                    <!-- Bot Selection Card -->
+                    <div class="card">
+                        <div class="card-title">Bot Selection</div>
+                        <div class="input-group">
+                            <label>Enter Bot UID</label>
+                            <input type="number" id="bot_uid" name="bot_uid" placeholder="Enter bot UID (e.g., 4235057283)" required>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Target Management</div>
+                        <div id="uid-container"></div>
+                        <button type="button" id="add-uid-btn" class="btn-success btn-sm" style="margin-top: 10px; flex-shrink: 0;">+ Add Target</button>
+                    </div>
+                    
+                    <div class="card scrollable">
+                        <div class="card-header">
+                            <div class="card-title">😎 Emote Palette</div>
+                            <div class="card-actions">
+                                <button type="button" id="send-selected" class="btn-cyan btn-sm">Send to Checked</button>
+                                <button type="button" id="send-all" class="btn-sm">Send All Assigned</button>
+                            </div>
+                        </div>
+
+                        <div class="emote-grid" id="emote-grid">
+                            <!-- Only 2 emote items as requested -->
+                            <div class="emote-item">
+                                <img src="{{ url_for('static', filename='images/909000075.png') }}" alt="MP40 MAX" class="lazy-emote-image">
+                                <div class="emote-details">
+                                    <p class="emote-name">MP40 MAX</p>
+                                    <p class="emote-id">ID: 909000075</p>
+                                </div>
+                            </div>
+                            
+                            <div class="emote-item">
+                                <img src="{{ url_for('static', filename='images/909000063.png') }}" alt="AK47 MAX" class="lazy-emote-image">
+                                <div class="emote-details">
+                                    <p class="emote-name">AK47 MAX</p>
+                                    <p class="emote-id">ID: 909000063</p>
+                                </div>
+                            </div>
+                                        <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035007.png') }}" alt="M1887 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">M1887 MAX</p>
+                    <p class="emote-id">ID: 909035007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000068.png') }}" alt="SCAR MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">SCAR MAX</p>
+                    <p class="emote-id">ID: 909000068</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000085.png') }}" alt="XM8 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">XM8 MAX</p>
+                    <p class="emote-id">ID: 909000085</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038012.png') }}" alt="G18 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">G18 MAX</p>
+                    <p class="emote-id">ID: 909038012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035012.png') }}" alt="AN94 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">AN94 MAX</p>
+                    <p class="emote-id">ID: 909035012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033002.png') }}" alt="MP5 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">MP5 MAX</p>
+                    <p class="emote-id">ID: 909033002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051003.png') }}" alt="M60 MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">M60 MAX</p>
+                    <p class="emote-id">ID: 909051003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037011.png') }}" alt="FIST MAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">FIST MAX</p>
+                    <p class="emote-id">ID: 909037011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000081.png') }}" alt="M1014 GMAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">M1014 GMAX</p>
+                    <p class="emote-id">ID: 909000081</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039011.png') }}" alt="M1014 RMAX" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">M1014 RMAX</p>
+                    <p class="emote-id">ID: 909039011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000090.png') }}" alt="Famas Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Famas Max</p>
+                    <p class="emote-id">ID: 909000090</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049010.png') }}" alt="P90 Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">P90 Max</p>
+                    <p class="emote-id">ID: 909049010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038010.png') }}" alt="Thompson Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Thompson Max</p>
+                    <p class="emote-id">ID: 909038010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033001.png') }}" alt="M4A1 Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">M4A1 Max</p>
+                    <p class="emote-id">ID: 909033001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000098.png') }}" alt="UMP Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">UMP Max</p>
+                    <p class="emote-id">ID: 909000098</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040010.png') }}" alt="New M40 Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">New M40 Max</p>
+                    <p class="emote-id">ID: 909040010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045001.png') }}" alt="Parafal Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Parafal Max</p>
+                    <p class="emote-id">ID: 909045001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042008.png') }}" alt="WD Picker Max" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">WD Picker Max</p>
+                    <p class="emote-id">ID: 909042008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049012.png') }}" alt="Open Fire" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Open Fire</p>
+                    <p class="emote-id">ID: 909049012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000002.png') }}" alt="LOL" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">LOL</p>
+                    <p class="emote-id">ID: 909000002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042007.png') }}" alt="&#34;100&#34; Gloo Sculpture" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">&#34;100&#34; Gloo Sculpture</p>
+                    <p class="emote-id">ID: 909042007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000012.png') }}" alt="Push Up" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Push Up</p>
+                    <p class="emote-id">ID: 909000012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000001.png') }}" alt="null" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">null</p>
+                    <p class="emote-id">ID: 909000001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000003.png') }}" alt="Provoke" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Provoke</p>
+                    <p class="emote-id">ID: 909000003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000004.png') }}" alt="null" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">null</p>
+                    <p class="emote-id">ID: 909000004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000005.png') }}" alt="null" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">null</p>
+                    <p class="emote-id">ID: 909000005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000010.png') }}" alt="Flowers of Love" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flowers of Love</p>
+                    <p class="emote-id">ID: 909000010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000014.png') }}" alt="FFWC Throne" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">FFWC Throne</p>
+                    <p class="emote-id">ID: 909000014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000032.png') }}" alt="Selfie" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Selfie</p>
+                    <p class="emote-id">ID: 909000032</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000034.png') }}" alt="Pirate&#39;s Flag" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Pirate&#39;s Flag</p>
+                    <p class="emote-id">ID: 909000034</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000036.png') }}" alt="Top DJ" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Top DJ</p>
+                    <p class="emote-id">ID: 909000036</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000038.png') }}" alt="Power of money" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Power of money</p>
+                    <p class="emote-id">ID: 909000038</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000039.png') }}" alt="Eat my dust" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Eat my dust</p>
+                    <p class="emote-id">ID: 909000039</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000041.png') }}" alt="Kongfu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Kongfu</p>
+                    <p class="emote-id">ID: 909000041</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000045.png') }}" alt="I heart you" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">I heart you</p>
+                    <p class="emote-id">ID: 909000045</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000046.png') }}" alt="Tea Time" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Tea Time</p>
+                    <p class="emote-id">ID: 909000046</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000052.png') }}" alt="Doggie" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Doggie</p>
+                    <p class="emote-id">ID: 909000052</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000055.png') }}" alt="I&#39;m Rich!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">I&#39;m Rich!</p>
+                    <p class="emote-id">ID: 909000055</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000056.png') }}" alt="Make It Rain" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Make It Rain</p>
+                    <p class="emote-id">ID: 909000056</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000057.png') }}" alt="Dust Off" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dust Off</p>
+                    <p class="emote-id">ID: 909000057</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000058.png') }}" alt="Captain Booyah" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Captain Booyah</p>
+                    <p class="emote-id">ID: 909000058</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000060.png') }}" alt="BOOYAH!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">BOOYAH!</p>
+                    <p class="emote-id">ID: 909000060</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000061.png') }}" alt="Bhangra" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bhangra</p>
+                    <p class="emote-id">ID: 909000061</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000062.png') }}" alt="Piece of Cake" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Piece of Cake</p>
+                    <p class="emote-id">ID: 909000062</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000064.png') }}" alt="I&#39;m Saitama!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">I&#39;m Saitama!</p>
+                    <p class="emote-id">ID: 909000064</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000065.png') }}" alt="The Victor" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Victor</p>
+                    <p class="emote-id">ID: 909000065</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000066.png') }}" alt="Sii!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sii!</p>
+                    <p class="emote-id">ID: 909000066</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000067.png') }}" alt="Obliteration" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Obliteration</p>
+                    <p class="emote-id">ID: 909000067</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000069.png') }}" alt="Top Scorer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Top Scorer</p>
+                    <p class="emote-id">ID: 909000069</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000070.png') }}" alt="Triple Kicks" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Triple Kicks</p>
+                    <p class="emote-id">ID: 909000070</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000071.png') }}" alt="Cobra Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Cobra Dance</p>
+                    <p class="emote-id">ID: 909000071</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000072.png') }}" alt="Predator Pulse" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Predator Pulse</p>
+                    <p class="emote-id">ID: 909000072</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000073.png') }}" alt="Ground Punch" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ground Punch</p>
+                    <p class="emote-id">ID: 909000073</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000074.png') }}" alt="The Biker" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Biker</p>
+                    <p class="emote-id">ID: 909000074</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000076.png') }}" alt="One-Finger Pushup" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">One-Finger Pushup</p>
+                    <p class="emote-id">ID: 909000076</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000077.png') }}" alt="Stage Time" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Stage Time</p>
+                    <p class="emote-id">ID: 909000077</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000078.png') }}" alt="Booyah! Balloon" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Booyah! Balloon</p>
+                    <p class="emote-id">ID: 909000078</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000079.png') }}" alt="More Practice" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">More Practice</p>
+                    <p class="emote-id">ID: 909000079</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000080.png') }}" alt="FFWS 2021" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">FFWS 2021</p>
+                    <p class="emote-id">ID: 909000080</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000086.png') }}" alt="Mythos Four" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Mythos Four</p>
+                    <p class="emote-id">ID: 909000086</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000087.png') }}" alt="Champion Grab" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Champion Grab</p>
+                    <p class="emote-id">ID: 909000087</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000088.png') }}" alt="Win and Chill" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Win and Chill</p>
+                    <p class="emote-id">ID: 909000088</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000089.png') }}" alt="Hadouken" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hadouken</p>
+                    <p class="emote-id">ID: 909000089</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000091.png') }}" alt="Big Smash" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Big Smash</p>
+                    <p class="emote-id">ID: 909000091</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000093.png') }}" alt="All In Control" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">All In Control</p>
+                    <p class="emote-id">ID: 909000093</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000094.png') }}" alt="Debugging" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Debugging</p>
+                    <p class="emote-id">ID: 909000094</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000095.png') }}" alt="Waggor Wave" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Waggor Wave</p>
+                    <p class="emote-id">ID: 909000095</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000096.png') }}" alt="Crazy Guitar" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Crazy Guitar</p>
+                    <p class="emote-id">ID: 909000096</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000121.png') }}" alt="Dribble King" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dribble King</p>
+                    <p class="emote-id">ID: 909000121</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000122.png') }}" alt="Name Not Found" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Name Not Found</p>
+                    <p class="emote-id">ID: 909000122</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000123.png') }}" alt="Mind it!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Mind it!</p>
+                    <p class="emote-id">ID: 909000123</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000124.png') }}" alt="Golden Combo" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Golden Combo</p>
+                    <p class="emote-id">ID: 909000124</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000125.png') }}" alt="Sick Moves" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sick Moves</p>
+                    <p class="emote-id">ID: 909000125</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000128.png') }}" alt="Ruler&#39;s Flag" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ruler&#39;s Flag</p>
+                    <p class="emote-id">ID: 909000128</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000129.png') }}" alt="Money Throw" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Money Throw</p>
+                    <p class="emote-id">ID: 909000129</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000130.png') }}" alt="Endless Bullets" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Endless Bullets</p>
+                    <p class="emote-id">ID: 909000130</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000133.png') }}" alt="Fire Slam" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Fire Slam</p>
+                    <p class="emote-id">ID: 909000133</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000134.png') }}" alt="Heartbroken" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Heartbroken</p>
+                    <p class="emote-id">ID: 909000134</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000135.png') }}" alt="Rock Paper Scissors" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Rock Paper Scissors</p>
+                    <p class="emote-id">ID: 909000135</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000136.png') }}" alt="Shattered Reality" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Shattered Reality</p>
+                    <p class="emote-id">ID: 909000136</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000137.png') }}" alt="Halo of Music" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Halo of Music</p>
+                    <p class="emote-id">ID: 909000137</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000138.png') }}" alt="Burnt BBQ" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Burnt BBQ</p>
+                    <p class="emote-id">ID: 909000138</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000139.png') }}" alt="Switching Steps" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Switching Steps</p>
+                    <p class="emote-id">ID: 909000139</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000140.png') }}" alt="Creed Slay" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Creed Slay</p>
+                    <p class="emote-id">ID: 909000140</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000141.png') }}" alt="Leap of Fail" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Leap of Fail</p>
+                    <p class="emote-id">ID: 909000141</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000142.png') }}" alt="Name Not Found" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Name Not Found</p>
+                    <p class="emote-id">ID: 909000142</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000143.png') }}" alt="Helicopter Shot" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Helicopter Shot</p>
+                    <p class="emote-id">ID: 909000143</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000144.png') }}" alt="Kungfu Tigers" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Kungfu Tigers</p>
+                    <p class="emote-id">ID: 909000144</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909000145.png') }}" alt="Possessed Warrior" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Possessed Warrior</p>
+                    <p class="emote-id">ID: 909000145</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033004.png') }}" alt="Drop Kick" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Drop Kick</p>
+                    <p class="emote-id">ID: 909033004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033005.png') }}" alt="Sit Down!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sit Down!</p>
+                    <p class="emote-id">ID: 909033005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033006.png') }}" alt="BOOYAH Sparks" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">BOOYAH Sparks</p>
+                    <p class="emote-id">ID: 909033006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033007.png') }}" alt="The FFWS Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The FFWS Dance</p>
+                    <p class="emote-id">ID: 909033007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033008.png') }}" alt="Easy Peasy" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Easy Peasy</p>
+                    <p class="emote-id">ID: 909033008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033009.png') }}" alt="Winner Throw" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Winner Throw</p>
+                    <p class="emote-id">ID: 909033009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909033010.png') }}" alt="Weight of Victory" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Weight of Victory</p>
+                    <p class="emote-id">ID: 909033010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034001.png') }}" alt="Chronicle of the Sword" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Chronicle of the Sword</p>
+                    <p class="emote-id">ID: 909034001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034002.png') }}" alt="The Collapse" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Collapse</p>
+                    <p class="emote-id">ID: 909034002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034003.png') }}" alt="Flaming Groove" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flaming Groove</p>
+                    <p class="emote-id">ID: 909034003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034004.png') }}" alt="Energetic" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Energetic</p>
+                    <p class="emote-id">ID: 909034004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034005.png') }}" alt="Ridicule" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ridicule</p>
+                    <p class="emote-id">ID: 909034005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034006.png') }}" alt="Tease Waggor" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Tease Waggor</p>
+                    <p class="emote-id">ID: 909034006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034007.png') }}" alt="Great Conductor" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Great Conductor</p>
+                    <p class="emote-id">ID: 909034007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034008.png') }}" alt="Fake Death" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Fake Death</p>
+                    <p class="emote-id">ID: 909034008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034009.png') }}" alt="Twerk" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Twerk</p>
+                    <p class="emote-id">ID: 909034009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034010.png') }}" alt="BR-Ranked Heroic Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">BR-Ranked Heroic Emote</p>
+                    <p class="emote-id">ID: 909034010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034011.png') }}" alt="BR-Ranked Master Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">BR-Ranked Master Emote</p>
+                    <p class="emote-id">ID: 909034011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034012.png') }}" alt="CS-Ranked Heroic Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">CS-Ranked Heroic Emote</p>
+                    <p class="emote-id">ID: 909034012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034013.png') }}" alt="CS-Ranked Master Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">CS-Ranked Master Emote</p>
+                    <p class="emote-id">ID: 909034013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909034014.png') }}" alt="Yes, I do" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Yes, I do</p>
+                    <p class="emote-id">ID: 909034014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035001.png') }}" alt="Free Money!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Free Money!</p>
+                    <p class="emote-id">ID: 909035001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035005.png') }}" alt="Victorious Eagle" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Victorious Eagle</p>
+                    <p class="emote-id">ID: 909035005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035006.png') }}" alt="Flying Saucer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flying Saucer</p>
+                    <p class="emote-id">ID: 909035006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035008.png') }}" alt="Bobble Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bobble Dance</p>
+                    <p class="emote-id">ID: 909035008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035009.png') }}" alt="Weight Training" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Weight Training</p>
+                    <p class="emote-id">ID: 909035009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035010.png') }}" alt="Beautiful Love" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Beautiful Love</p>
+                    <p class="emote-id">ID: 909035010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035011.png') }}" alt="Groove Moves" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Groove Moves</p>
+                    <p class="emote-id">ID: 909035011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035013.png') }}" alt="Louder Please" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Louder Please</p>
+                    <p class="emote-id">ID: 909035013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035014.png') }}" alt="Ninja Stand" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ninja Stand</p>
+                    <p class="emote-id">ID: 909035014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909035015.png') }}" alt="Creator In Action" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Creator In Action</p>
+                    <p class="emote-id">ID: 909035015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036001.png') }}" alt="Ghost Float" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ghost Float</p>
+                    <p class="emote-id">ID: 909036001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036002.png') }}" alt="Shiba Surf" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Shiba Surf</p>
+                    <p class="emote-id">ID: 909036002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036003.png') }}" alt="Waiter Walk" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Waiter Walk</p>
+                    <p class="emote-id">ID: 909036003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036004.png') }}" alt="Graffiti Cameraman" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Graffiti Cameraman</p>
+                    <p class="emote-id">ID: 909036004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036005.png') }}" alt="Agile Boxer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Agile Boxer</p>
+                    <p class="emote-id">ID: 909036005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036006.png') }}" alt="Sunbathing" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sunbathing</p>
+                    <p class="emote-id">ID: 909036006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036008.png') }}" alt="Skateboard Swag" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Skateboard Swag</p>
+                    <p class="emote-id">ID: 909036008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036009.png') }}" alt="Phantom Tamer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Phantom Tamer</p>
+                    <p class="emote-id">ID: 909036009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036010.png') }}" alt="The Signal" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Signal</p>
+                    <p class="emote-id">ID: 909036010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036011.png') }}" alt="Eternal Descent" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Eternal Descent</p>
+                    <p class="emote-id">ID: 909036011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036012.png') }}" alt="Swaggy Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Swaggy Dance</p>
+                    <p class="emote-id">ID: 909036012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909036014.png') }}" alt="Admire" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Admire</p>
+                    <p class="emote-id">ID: 909036014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037001.png') }}" alt="Reindeer Float" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Reindeer Float</p>
+                    <p class="emote-id">ID: 909037001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037002.png') }}" alt="Bamboo Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bamboo Dance</p>
+                    <p class="emote-id">ID: 909037002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037003.png') }}" alt="Dance of Constellation" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dance of Constellation</p>
+                    <p class="emote-id">ID: 909037003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037004.png') }}" alt="Trophy Grab" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Trophy Grab</p>
+                    <p class="emote-id">ID: 909037004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037005.png') }}" alt="Starry Hands" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Starry Hands</p>
+                    <p class="emote-id">ID: 909037005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037006.png') }}" alt="Yum" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Yum</p>
+                    <p class="emote-id">ID: 909037006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037007.png') }}" alt="Happy Dancing" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Happy Dancing</p>
+                    <p class="emote-id">ID: 909037007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037008.png') }}" alt="Juggle" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Juggle</p>
+                    <p class="emote-id">ID: 909037008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037009.png') }}" alt="Neon Sign" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Neon Sign</p>
+                    <p class="emote-id">ID: 909037009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037010.png') }}" alt="Beast Tease" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Beast Tease</p>
+                    <p class="emote-id">ID: 909037010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909037012.png') }}" alt="Clap Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Clap Dance</p>
+                    <p class="emote-id">ID: 909037012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038001.png') }}" alt="The Influencer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Influencer</p>
+                    <p class="emote-id">ID: 909038001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038002.png') }}" alt="Name Not Found" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Name Not Found</p>
+                    <p class="emote-id">ID: 909038002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038003.png') }}" alt="Techno Blast" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Techno Blast</p>
+                    <p class="emote-id">ID: 909038003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038004.png') }}" alt="Be My Valentine" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Be My Valentine</p>
+                    <p class="emote-id">ID: 909038004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038005.png') }}" alt="Angry Walk" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Angry Walk</p>
+                    <p class="emote-id">ID: 909038005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038006.png') }}" alt="Make Some Noise" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Make Some Noise</p>
+                    <p class="emote-id">ID: 909038006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038008.png') }}" alt="Croco Hooray" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Croco Hooray</p>
+                    <p class="emote-id">ID: 909038008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038009.png') }}" alt="Scorpio Spin" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Scorpio Spin</p>
+                    <p class="emote-id">ID: 909038009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038011.png') }}" alt="Shall We Dance?" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Shall We Dance?</p>
+                    <p class="emote-id">ID: 909038011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909038013.png') }}" alt="Spin Master" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Spin Master</p>
+                    <p class="emote-id">ID: 909038013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039001.png') }}" alt="Festival Celebration" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Festival Celebration</p>
+                    <p class="emote-id">ID: 909039001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039002.png') }}" alt="Artistic Musical Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Artistic Musical Dance</p>
+                    <p class="emote-id">ID: 909039002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039003.png') }}" alt="Forward, Backward" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Forward, Backward</p>
+                    <p class="emote-id">ID: 909039003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039004.png') }}" alt="Scorpion Friend" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Scorpion Friend</p>
+                    <p class="emote-id">ID: 909039004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039005.png') }}" alt="Aching Power" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Aching Power</p>
+                    <p class="emote-id">ID: 909039005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039006.png') }}" alt="Earthly Force" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Earthly Force</p>
+                    <p class="emote-id">ID: 909039006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039007.png') }}" alt="Grenade Magic" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Grenade Magic</p>
+                    <p class="emote-id">ID: 909039007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039008.png') }}" alt="Oh Yeah!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Oh Yeah!</p>
+                    <p class="emote-id">ID: 909039008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039009.png') }}" alt="Grace On Wheels" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Grace On Wheels</p>
+                    <p class="emote-id">ID: 909039009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039010.png') }}" alt="Flex" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flex</p>
+                    <p class="emote-id">ID: 909039010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039011.png') }}" alt="Crimson Doom" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Crimson Doom</p>
+                    <p class="emote-id">ID: 909039011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039012.png') }}" alt="Fire Beast Tamer" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Fire Beast Tamer</p>
+                    <p class="emote-id">ID: 909039012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039013.png') }}" alt="Crimson Tunes" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Crimson Tunes</p>
+                    <p class="emote-id">ID: 909039013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909039014.png') }}" alt="Swaggy V-Steps" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Swaggy V-Steps</p>
+                    <p class="emote-id">ID: 909039014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040001.png') }}" alt="The Chromatic Finish" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Chromatic Finish</p>
+                    <p class="emote-id">ID: 909040001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040002.png') }}" alt="Smash the Feather" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Smash the Feather</p>
+                    <p class="emote-id">ID: 909040002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040003.png') }}" alt="Sonorous Steps" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sonorous Steps</p>
+                    <p class="emote-id">ID: 909040003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040004.png') }}" alt="Fishing for Wisdom" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Fishing for Wisdom</p>
+                    <p class="emote-id">ID: 909040004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040005.png') }}" alt="Chromatic Pop Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Chromatic Pop Dance</p>
+                    <p class="emote-id">ID: 909040005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040006.png') }}" alt="Chroma Twist Twist" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Chroma Twist Twist</p>
+                    <p class="emote-id">ID: 909040006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040008.png') }}" alt="Birth of Justice" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Birth of Justice</p>
+                    <p class="emote-id">ID: 909040008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040009.png') }}" alt="Spider-Sense" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Spider-Sense</p>
+                    <p class="emote-id">ID: 909040009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040011.png') }}" alt="Play With Thunderbolt" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Play With Thunderbolt</p>
+                    <p class="emote-id">ID: 909040011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040012.png') }}" alt="6th Anniversary Celebration" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">6th Anniversary Celebration</p>
+                    <p class="emote-id">ID: 909040012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040013.png') }}" alt="Wisdom Swing" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Wisdom Swing</p>
+                    <p class="emote-id">ID: 909040013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909040014.png') }}" alt="Helicopter Shot" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Helicopter Shot</p>
+                    <p class="emote-id">ID: 909040014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041001.png') }}" alt="Thunder Breathing First Form: Thunder Flash" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Thunder Breathing First Form: Thunder Flash</p>
+                    <p class="emote-id">ID: 909041001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041002.png') }}" alt="Water Breathing Sixth Form: Whirlpool" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Water Breathing Sixth Form: Whirlpool</p>
+                    <p class="emote-id">ID: 909041002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041003.png') }}" alt="Beast Breathing Fifth Fang: Crazy Cutting" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Beast Breathing Fifth Fang: Crazy Cutting</p>
+                    <p class="emote-id">ID: 909041003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041004.png') }}" alt="Flying Ink Sword" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flying Ink Sword</p>
+                    <p class="emote-id">ID: 909041004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041005.png') }}" alt="Diz My Popblaster" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Diz My Popblaster</p>
+                    <p class="emote-id">ID: 909041005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041006.png') }}" alt="Dance Puppet, Dance!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dance Puppet, Dance!</p>
+                    <p class="emote-id">ID: 909041006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041007.png') }}" alt="High Knees" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">High Knees</p>
+                    <p class="emote-id">ID: 909041007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041008.png') }}" alt="Bony Fumes" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bony Fumes</p>
+                    <p class="emote-id">ID: 909041008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041009.png') }}" alt="Feel the Electricity" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Feel the Electricity</p>
+                    <p class="emote-id">ID: 909041009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041010.png') }}" alt="Whac-A-Cotton" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Whac-A-Cotton</p>
+                    <p class="emote-id">ID: 909041010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041011.png') }}" alt="Honorable Mention Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Honorable Mention Emote</p>
+                    <p class="emote-id">ID: 909041011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041012.png') }}" alt="BR-Ranked Grandmaster Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">BR-Ranked Grandmaster Emote</p>
+                    <p class="emote-id">ID: 909041012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041013.png') }}" alt="CS-Ranked Grandmaster Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">CS-Ranked Grandmaster Emote</p>
+                    <p class="emote-id">ID: 909041013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041014.png') }}" alt="Monster Clubbing" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Monster Clubbing</p>
+                    <p class="emote-id">ID: 909041014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909041015.png') }}" alt="Basudara Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Basudara Dance</p>
+                    <p class="emote-id">ID: 909041015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042001.png') }}" alt="Stir-Fry Frostfire" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Stir-Fry Frostfire</p>
+                    <p class="emote-id">ID: 909042001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042002.png') }}" alt="Money Rain" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Money Rain</p>
+                    <p class="emote-id">ID: 909042002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042003.png') }}" alt="Frostfire&#39;s Calling" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Frostfire&#39;s Calling</p>
+                    <p class="emote-id">ID: 909042003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042004.png') }}" alt="Stomping Foot" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Stomping Foot</p>
+                    <p class="emote-id">ID: 909042004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042005.png') }}" alt="This Way" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">This Way</p>
+                    <p class="emote-id">ID: 909042005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042006.png') }}" alt="Excellent Service" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Excellent Service</p>
+                    <p class="emote-id">ID: 909042006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042009.png') }}" alt="Celebration Schuss" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Celebration Schuss</p>
+                    <p class="emote-id">ID: 909042009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042011.png') }}" alt="Dawn Voyage Emote" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dawn Voyage Emote</p>
+                    <p class="emote-id">ID: 909042011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042012.png') }}" alt="Lamborghini Ride" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Lamborghini Ride</p>
+                    <p class="emote-id">ID: 909042012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042013.png') }}" alt="Hello! Frostfire Style" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hello! Frostfire Style</p>
+                    <p class="emote-id">ID: 909042013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042016.png') }}" alt="Hand Grooves" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hand Grooves</p>
+                    <p class="emote-id">ID: 909042016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042017.png') }}" alt="Free Fire Toiletman" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Free Fire Toiletman</p>
+                    <p class="emote-id">ID: 909042017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909042018.png') }}" alt="Kemusan" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Kemusan</p>
+                    <p class="emote-id">ID: 909042018</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043001.png') }}" alt="Ribbit Rider" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Ribbit Rider</p>
+                    <p class="emote-id">ID: 909043001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043002.png') }}" alt="Inner Self Mastery" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Inner Self Mastery</p>
+                    <p class="emote-id">ID: 909043002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043003.png') }}" alt="Emperor&#39;s Treasure Machine" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Emperor&#39;s Treasure Machine</p>
+                    <p class="emote-id">ID: 909043003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043004.png') }}" alt="Why So Chaos?" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Why So Chaos?</p>
+                    <p class="emote-id">ID: 909043004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043005.png') }}" alt="Huge Feast" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Huge Feast</p>
+                    <p class="emote-id">ID: 909043005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043006.png') }}" alt="Color Burst" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Color Burst</p>
+                    <p class="emote-id">ID: 909043006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043007.png') }}" alt="Dragon Swipe" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Dragon Swipe</p>
+                    <p class="emote-id">ID: 909043007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043008.png') }}" alt="Samba" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Samba</p>
+                    <p class="emote-id">ID: 909043008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043009.png') }}" alt="Speed Summon" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Speed Summon</p>
+                    <p class="emote-id">ID: 909043009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043010.png') }}" alt="What a Match" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">What a Match</p>
+                    <p class="emote-id">ID: 909043010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909043013.png') }}" alt="What a Pair" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">What a Pair</p>
+                    <p class="emote-id">ID: 909043013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044001.png') }}" alt="Byte Mounting" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Byte Mounting</p>
+                    <p class="emote-id">ID: 909044001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044002.png') }}" alt="The Unicyclist" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Unicyclist</p>
+                    <p class="emote-id">ID: 909044002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044003.png') }}" alt="Basket Rafting" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Basket Rafting</p>
+                    <p class="emote-id">ID: 909044003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044004.png') }}" alt="Happy Lamb Shouldering" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Happy Lamb Shouldering</p>
+                    <p class="emote-id">ID: 909044004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044005.png') }}" alt="Paradox of Enlightenment" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Paradox of Enlightenment</p>
+                    <p class="emote-id">ID: 909044005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044006.png') }}" alt="Harmonious Paradox" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Harmonious Paradox</p>
+                    <p class="emote-id">ID: 909044006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044007.png') }}" alt="Raise Your Thumb!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Raise Your Thumb!</p>
+                    <p class="emote-id">ID: 909044007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044015.png') }}" alt="The Final Paradox" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Final Paradox</p>
+                    <p class="emote-id">ID: 909044015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909044016.png') }}" alt="Honk Up!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Honk Up!</p>
+                    <p class="emote-id">ID: 909044016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045002.png') }}" alt="Spring Rocker" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Spring Rocker</p>
+                    <p class="emote-id">ID: 909045002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045003.png') }}" alt="Giddy Up!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Giddy Up!</p>
+                    <p class="emote-id">ID: 909045003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045004.png') }}" alt="The Goosy Dance" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Goosy Dance</p>
+                    <p class="emote-id">ID: 909045004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045005.png') }}" alt="Captain Victor" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Captain Victor</p>
+                    <p class="emote-id">ID: 909045005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045010.png') }}" alt="A Flower Salute" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">A Flower Salute</p>
+                    <p class="emote-id">ID: 909045010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045011.png') }}" alt="Little Foxy Run" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Little Foxy Run</p>
+                    <p class="emote-id">ID: 909045011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045012.png') }}" alt="Mr. Waggor&#39;s Seesaw" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Mr. Waggor&#39;s Seesaw</p>
+                    <p class="emote-id">ID: 909045012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045015.png') }}" alt="Floating Meditation" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Floating Meditation</p>
+                    <p class="emote-id">ID: 909045015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045016.png') }}" alt="Naatu Naatu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Naatu Naatu</p>
+                    <p class="emote-id">ID: 909045016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909045017.png') }}" alt="Champion&#39;s Walk" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Champion&#39;s Walk</p>
+                    <p class="emote-id">ID: 909045017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046001.png') }}" alt="Aura Boarder" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Aura Boarder</p>
+                    <p class="emote-id">ID: 909046001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046002.png') }}" alt="Who&#39;s the Booyah Champ!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Who&#39;s the Booyah Champ!</p>
+                    <p class="emote-id">ID: 909046002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046003.png') }}" alt="Controlled Combustion" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Controlled Combustion</p>
+                    <p class="emote-id">ID: 909046003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046004.png') }}" alt="Cheers to Victory!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Cheers to Victory!</p>
+                    <p class="emote-id">ID: 909046004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046005.png') }}" alt="Shoe Shining" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Shoe Shining</p>
+                    <p class="emote-id">ID: 909046005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046006.png') }}" alt="Gunspinning" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Gunspinning</p>
+                    <p class="emote-id">ID: 909046006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046007.png') }}" alt="Crowd Pleaser" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Crowd Pleaser</p>
+                    <p class="emote-id">ID: 909046007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046008.png') }}" alt="No Sweat" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">No Sweat</p>
+                    <p class="emote-id">ID: 909046008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046009.png') }}" alt="Magma Quake" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Magma Quake</p>
+                    <p class="emote-id">ID: 909046009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046010.png') }}" alt="Max Firepower" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Max Firepower</p>
+                    <p class="emote-id">ID: 909046010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046011.png') }}" alt="Can&#39;t Touch This" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Can&#39;t Touch This</p>
+                    <p class="emote-id">ID: 909046011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046012.png') }}" alt="Firestarter" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Firestarter</p>
+                    <p class="emote-id">ID: 909046012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046013.png') }}" alt="FFWS Flag Flair" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">FFWS Flag Flair</p>
+                    <p class="emote-id">ID: 909046013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046014.png') }}" alt="Beat Drop" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Beat Drop</p>
+                    <p class="emote-id">ID: 909046014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046015.png') }}" alt="Isagi&#39;s Spatial Awareness" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Isagi&#39;s Spatial Awareness</p>
+                    <p class="emote-id">ID: 909046015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046016.png') }}" alt="Nagi&#39;s Trapping" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Nagi&#39;s Trapping</p>
+                    <p class="emote-id">ID: 909046016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909046017.png') }}" alt="Soaring Up" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Soaring Up</p>
+                    <p class="emote-id">ID: 909046017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047001.png') }}" alt="I Won&#39;t Bow Down" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">I Won&#39;t Bow Down</p>
+                    <p class="emote-id">ID: 909047001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047002.png') }}" alt="Aurora Iridescence" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Aurora Iridescence</p>
+                    <p class="emote-id">ID: 909047002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047003.png') }}" alt="Couch For Two" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Couch For Two</p>
+                    <p class="emote-id">ID: 909047003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047004.png') }}" alt="Flutter Dash" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flutter Dash</p>
+                    <p class="emote-id">ID: 909047004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047005.png') }}" alt="Slippery Throne" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Slippery Throne</p>
+                    <p class="emote-id">ID: 909047005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047006.png') }}" alt="Acceptance Speech" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Acceptance Speech</p>
+                    <p class="emote-id">ID: 909047006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047007.png') }}" alt="Love Me, Love Me Not" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Love Me, Love Me Not</p>
+                    <p class="emote-id">ID: 909047007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047008.png') }}" alt="Scissor Savvy" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Scissor Savvy</p>
+                    <p class="emote-id">ID: 909047008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047009.png') }}" alt="The Thinker" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Thinker</p>
+                    <p class="emote-id">ID: 909047009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047012.png') }}" alt="JKT48 No.1" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">JKT48 No.1</p>
+                    <p class="emote-id">ID: 909047012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047015.png') }}" alt="Rasengan" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Rasengan</p>
+                    <p class="emote-id">ID: 909047015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909047019.png') }}" alt="Clone Jutsu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Clone Jutsu</p>
+                    <p class="emote-id">ID: 909047019</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048001.png') }}" alt="To the Rescue" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">To the Rescue</p>
+                    <p class="emote-id">ID: 909048001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048002.png') }}" alt="Midnight Peruse" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Midnight Peruse</p>
+                    <p class="emote-id">ID: 909048002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048003.png') }}" alt="Guitar Groove" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Guitar Groove</p>
+                    <p class="emote-id">ID: 909048003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048004.png') }}" alt="Keyboard Player" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Keyboard Player</p>
+                    <p class="emote-id">ID: 909048004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048005.png') }}" alt="On Drums" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">On Drums</p>
+                    <p class="emote-id">ID: 909048005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048006.png') }}" alt="Chac-Chac" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Chac-Chac</p>
+                    <p class="emote-id">ID: 909048006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048007.png') }}" alt="Pillow Fight" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Pillow Fight</p>
+                    <p class="emote-id">ID: 909048007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048009.png') }}" alt="Goofy Camel" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Goofy Camel</p>
+                    <p class="emote-id">ID: 909048009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048010.png') }}" alt="Hit a Six!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hit a Six!</p>
+                    <p class="emote-id">ID: 909048010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048011.png') }}" alt="Flag Summon" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flag Summon</p>
+                    <p class="emote-id">ID: 909048011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048014.png') }}" alt="Slurp slurp!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Slurp slurp!</p>
+                    <p class="emote-id">ID: 909048014</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048015.png') }}" alt="Sketching" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sketching</p>
+                    <p class="emote-id">ID: 909048015</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048016.png') }}" alt="Half-Time Chilling" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Half-Time Chilling</p>
+                    <p class="emote-id">ID: 909048016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909048017.png') }}" alt="Throw-In" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Throw-In</p>
+                    <p class="emote-id">ID: 909048017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049001.png') }}" alt="Nailoong Time!" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Nailoong Time!</p>
+                    <p class="emote-id">ID: 909049001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049002.png') }}" alt="Hand Raise" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hand Raise</p>
+                    <p class="emote-id">ID: 909049002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049003.png') }}" alt="Kick It Up" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Kick It Up</p>
+                    <p class="emote-id">ID: 909049003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049006.png') }}" alt="Creation Days" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Creation Days</p>
+                    <p class="emote-id">ID: 909049006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049007.png') }}" alt="Raining Coins" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Raining Coins</p>
+                    <p class="emote-id">ID: 909049007</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049008.png') }}" alt="Clap Clap Hooray" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Clap Clap Hooray</p>
+                    <p class="emote-id">ID: 909049008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049009.png') }}" alt="Infinite Loops" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Infinite Loops</p>
+                    <p class="emote-id">ID: 909049009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049011.png') }}" alt="Boxing Machine" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Boxing Machine</p>
+                    <p class="emote-id">ID: 909049011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049013.png') }}" alt="Comic Barf" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Comic Barf</p>
+                    <p class="emote-id">ID: 909049013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049016.png') }}" alt="Spear Spin" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Spear Spin</p>
+                    <p class="emote-id">ID: 909049016</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049017.png') }}" alt="Flag Wave" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flag Wave</p>
+                    <p class="emote-id">ID: 909049017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909049018.png') }}" alt="Disco Dazzle" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Disco Dazzle</p>
+                    <p class="emote-id">ID: 909049018</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050002.png') }}" alt="Reanimation Jutsu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Reanimation Jutsu</p>
+                    <p class="emote-id">ID: 909050002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050003.png') }}" alt="The Final Battle" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Final Battle</p>
+                    <p class="emote-id">ID: 909050003</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050005.png') }}" alt="Fire Style: Fireball Jutsu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Fire Style: Fireball Jutsu</p>
+                    <p class="emote-id">ID: 909050005</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050006.png') }}" alt="Flying Raijin Jutsu" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flying Raijin Jutsu</p>
+                    <p class="emote-id">ID: 909050006</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050008.png') }}" alt="Hammer Slam" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Hammer Slam</p>
+                    <p class="emote-id">ID: 909050008</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050009.png') }}" alt="The Rings" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">The Rings</p>
+                    <p class="emote-id">ID: 909050009</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050010.png') }}" alt="Drum Twirl" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Drum Twirl</p>
+                    <p class="emote-id">ID: 909050010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050011.png') }}" alt="Bunny Action" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bunny Action</p>
+                    <p class="emote-id">ID: 909050011</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050012.png') }}" alt="Broom Swoosh" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Broom Swoosh</p>
+                    <p class="emote-id">ID: 909050012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050013.png') }}" alt="Blade from Heart" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Blade from Heart</p>
+                    <p class="emote-id">ID: 909050013</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050017.png') }}" alt="Bunny Wiggle" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Bunny Wiggle</p>
+                    <p class="emote-id">ID: 909050017</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050018.png') }}" alt="Flaming Heart" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Flaming Heart</p>
+                    <p class="emote-id">ID: 909050018</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050019.png') }}" alt="Rain or Shine" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Rain or Shine</p>
+                    <p class="emote-id">ID: 909050019</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050020.png') }}" alt="Sholay" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Sholay</p>
+                    <p class="emote-id">ID: 909050020</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050021.png') }}" alt="Peak Points" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Peak Points</p>
+                    <p class="emote-id">ID: 909050021</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050027.png') }}" alt="Boat Race Aura" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Boat Race Aura</p>
+                    <p class="emote-id">ID: 909050027</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909050028.png') }}" alt="Boat Race Rowing" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Boat Race Rowing</p>
+                    <p class="emote-id">ID: 909050028</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051001.png') }}" alt="Prismatic Flight" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Prismatic Flight</p>
+                    <p class="emote-id">ID: 909051001</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051002.png') }}" alt="Name Not Found" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Name Not Found</p>
+                    <p class="emote-id">ID: 909051002</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051004.png') }}" alt="Shower Time" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Shower Time</p>
+                    <p class="emote-id">ID: 909051004</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051010.png') }}" alt="On Motorbike" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">On Motorbike</p>
+                    <p class="emote-id">ID: 909051010</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051012.png') }}" alt="Celestial Shot" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Celestial Shot</p>
+                    <p class="emote-id">ID: 909051012</p>
+                </div>
+            </div>
+            
+            <div class="emote-item">
+                <img src="{{ url_for('static', filename='images/909051013.png') }}" alt="Red Petals" class="lazy-emote-image">
+                <div class="emote-details">
+                    <p class="emote-name">Red Petals</p>
+                    <p class="emote-id">ID: 909051013</p>
+                </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="card">
+                        <div class="card-title">Settings</div>
+                        <div class="input-group">
+                            <label>Main Account UID</label>
+                            <input type="number" id="main_player_uid" placeholder="Your UID">
+                        </div>
+                        <div class="input-group">
+                            <label>Team Code</label>
+                            <input type="text" id="team_code" placeholder="Squad code">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Quick Actions</div>
+                        <div class="quick-actions">
+                            <button type="button" id="join-squad" class="btn-cyan">Join Squad</button>
+                            <button type="button" id="quick-invite" class="btn-success">Create 5 player Invite</button>
+                            <button type="button" id="leave-squad" class="btn-danger">Leave Squad</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Status</div>
+                        <div class="stat-row">
+                            <span class="stat-label">Targets</span>
+                            <span class="stat-value" id="stat-targets">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Assigned</span>
+                            <span class="stat-value" id="stat-assigned">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Selected</span>
+                            <span class="stat-value" id="stat-selected">None</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Bot UID</span>
+                            <span class="stat-value" id="stat-bot">Not set</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const state = { 
+                selectedEmote: null
+            };
+            
+            const els = {
+                mainUid: document.getElementById('main_player_uid'), 
+                teamCode: document.getElementById('team_code'),
+                botUid: document.getElementById('bot_uid'),
+                uidContainer: document.getElementById('uid-container'), 
+                emoteGrid: document.getElementById('emote-grid'),
+                form: document.getElementById('main-form'), 
+                formAction: document.getElementById('form_action'),
+                formPayload: document.getElementById('form_payload')
+            };
+
+            function updateStats() {
+                const rows = els.uidContainer.querySelectorAll('.uid-row');
+                const assigned = Array.from(rows).filter(r => r.dataset.emoteId).length;
+                document.getElementById('stat-targets').textContent = rows.length;
+                document.getElementById('stat-assigned').textContent = assigned;
+                document.getElementById('stat-selected').textContent = state.selectedEmote ? state.selectedEmote.name : 'None';
+                document.getElementById('stat-bot').textContent = els.botUid.value || 'Not set';
+            }
+
+            function updateEmoteBadge(row, emoteData) {
+                const badge = row.querySelector('.emote-badge');
+                if (emoteData && emoteData.id) {
+                    row.dataset.emoteId = emoteData.id;
+                    row.dataset.emoteName = emoteData.name;
+                    row.dataset.emoteImg = emoteData.img;
+                    badge.classList.remove('empty');
+                    badge.querySelector('img').src = emoteData.img;
+                    badge.querySelector('img').style.display = 'block';
+                    badge.querySelector('span').textContent = emoteData.name;
+                } else {
+                    delete row.dataset.emoteId; 
+                    delete row.dataset.emoteName; 
+                    delete row.dataset.emoteImg;
+                    badge.classList.add('empty');
+                    badge.querySelector('img').style.display = 'none';
+                    badge.querySelector('span').textContent = 'None';
+                }
+            }
+
+            function createUidRow(targetData = {}, isMain = false) {
+                const div = document.createElement('div');
+                div.className = 'uid-row';
+                div.innerHTML = `
+                    <input type="checkbox" checked>
+                    <input type="number" placeholder="${isMain ? 'Main UID' : 'Target UID'}" value="${targetData.uid || ''}" ${isMain ? 'readonly' : ''}>
+                    <div class="emote-badge empty"><img src="" style="display:none"><span>None</span></div>
+                    <div class="uid-actions">
+                        <button type="button" class="btn-icon btn-sm" title="Assign" data-action="assign">📌</button>
+                        <button type="button" class="btn-icon btn-sm" title="Clear" data-action="clear">✕</button>
+                        <button type="button" class="btn-icon btn-sm btn-success" title="Send" data-action="send">➤</button>
+                        ${!isMain ? '<button type="button" class="btn-icon btn-sm btn-danger" data-action="remove">🗑</button>' : ''}
+                    </div>`;
+                els.uidContainer.appendChild(div);
+                if (targetData.emoteId) {
+                    updateEmoteBadge(div, { id: targetData.emoteId, name: targetData.emoteName, img: targetData.emoteImg });
+                }
+                updateStats();
+                return div;
+            }
+
+            function saveData() {
+                const data = {
+                    main_uid: els.mainUid.value,
+                    team_code: els.teamCode.value,
+                    bot_uid: els.botUid.value,
+                    targets: []
+                };
+                
+                els.uidContainer.querySelectorAll('.uid-row').forEach(row => {
+                    const uidInput = row.querySelector('input[type="number"]');
+                    const target = { uid: uidInput.value };
+                    if (row.dataset.emoteId) {
+                        target.emoteId = row.dataset.emoteId;
+                        target.emoteName = row.dataset.emoteName;
+                        target.emoteImg = row.dataset.emoteImg;
+                    }
+                    if (uidInput.readOnly) {
+                        target.isMain = true;
+                    }
+                    data.targets.push(target);
+                });
+                
+                localStorage.setItem('gamer_sabbir_data', JSON.stringify(data));
+            }
+
+            function loadData() {
+                const saved = JSON.parse(localStorage.getItem('gamer_sabbir_data') || '{}');
+                
+                els.mainUid.value = saved.main_uid || '';
+                els.teamCode.value = saved.team_code || '';
+                els.botUid.value = saved.bot_uid || '';
+                
+                els.uidContainer.innerHTML = '';
+                if (saved.targets && saved.targets.length > 0) {
+                    saved.targets.forEach(t => createUidRow(t, t.isMain));
+                } else {
+                    createUidRow({ uid: els.mainUid.value }, true);
+                }
+                updateStats();
+            }
+
+            function submitForm(action, payload) {
+                // Validate bot UID
+                if (!els.botUid.value) {
+                    alert('Please enter a Bot UID first!');
+                    return;
+                }
+                
+                els.formAction.value = action;
+                els.formPayload.value = JSON.stringify(payload);
+                els.form.submit();
+            }
+
+            // Event listeners
+            els.mainUid.addEventListener('input', () => {
+                const mainRowInput = els.uidContainer.querySelector('.uid-row input[readonly]');
+                if (mainRowInput) mainRowInput.value = els.mainUid.value;
+                saveData();
+            });
+            
+            els.teamCode.addEventListener('input', saveData);
+            els.botUid.addEventListener('input', () => {
+                saveData();
+                updateStats();
+            });
+
+            document.getElementById('add-uid-btn').addEventListener('click', () => {
+                if (els.uidContainer.children.length >= 5) { 
+                    alert('Maximum 5 targets'); 
+                    return; 
+                }
+                createUidRow({}, false);
+            });
+
+            els.emoteGrid.addEventListener('click', e => {
+                const card = e.target.closest('.emote-item');
+                if (!card) return;
+
+                const name = card.querySelector('.emote-name').textContent;
+                const idText = card.querySelector('.emote-id').textContent;
+                const id = idText.replace('ID: ', '').trim();
+                const img = card.querySelector('img').src;
+
+                state.selectedEmote = { id: id, name: name, img: img };
+
+                els.emoteGrid.querySelectorAll('.emote-item').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                updateStats();
+            });
+
+            els.uidContainer.addEventListener('input', e => { 
+                if (e.target.matches('input[type="number"]')) saveData(); 
+            });
+            
+            els.uidContainer.addEventListener('click', e => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const row = btn.closest('.uid-row');
+                const action = btn.dataset.action;
+
+                if (action === 'assign') {
+                    if (!state.selectedEmote) { 
+                        alert('Select an emote from the palette first'); 
+                        return; 
+                    }
+                    updateEmoteBadge(row, state.selectedEmote);
+                } else if (action === 'clear') {
+                    updateEmoteBadge(row, null);
+                } else if (action === 'send') {
+                    const uid = row.querySelector('input[type="number"]').value;
+                    const emoteId = row.dataset.emoteId;
+                    if (!uid || !emoteId) { 
+                        alert('A UID must be entered and an emote must be assigned.'); 
+                        return; 
+                    }
+                    submitForm('emote_batch', [{ 
+                        player_id: parseInt(uid), 
+                        emote_id: parseInt(emoteId) 
+                    }]);
+                } else if (action === 'remove') {
+                    row.remove();
+                }
+                saveData(); 
+                updateStats();
+            });
+
+            document.getElementById('send-selected').addEventListener('click', () => {
+                if (!state.selectedEmote) { 
+                    alert('Select an emote from the palette first.'); 
+                    return; 
+                }
+                const checked = Array.from(els.uidContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(cb => cb.closest('.uid-row').querySelector('input[type="number"]').value)
+                    .filter(Boolean);
+                if (checked.length === 0) { 
+                    alert('Check at least one target with a valid UID.'); 
+                    return; 
+                }
+                submitForm('emote', { 
+                    emote_id: parseInt(state.selectedEmote.id), 
+                    player_ids: checked.map(uid => parseInt(uid)) 
+                });
+            });
+
+            document.getElementById('send-all').addEventListener('click', () => {
+                const payload = [];
+                els.uidContainer.querySelectorAll('.uid-row').forEach(row => {
+                    if (row.dataset.emoteId) {
+                        const uid = row.querySelector('input[type="number"]').value;
+                        if (uid) payload.push({ 
+                            player_id: parseInt(uid), 
+                            emote_id: parseInt(row.dataset.emoteId) 
+                        });
+                    }
+                });
+                if (payload.length === 0) { 
+                    alert('No assigned emotes to send.'); 
+                    return; 
+                }
+                submitForm('emote_batch', payload);
+            });
+
+            document.getElementById('join-squad').addEventListener('click', () => {
+                if (!els.teamCode.value) { 
+                    alert('Enter a team code first.'); 
+                    return; 
+                }
+                submitForm('join_squad', { team_code: els.teamCode.value });
+            });
+            
+            document.getElementById('quick-invite').addEventListener('click', () => {
+                if (!els.mainUid.value) { 
+                    alert('Enter your main account UID first.'); 
+                    return; 
+                }
+                submitForm('quick_invite', { player_id: parseInt(els.mainUid.value) });
+            });
+            
+            document.getElementById('leave-squad').addEventListener('click', () => {
+                if (confirm('Are you sure you want the bot to leave its current squad?')) {
+                    submitForm('leave_squad', {});
+                }
+            });
+
+            // Initialize
+            loadData();
+        });
+    </script>
+</body>
+</html>
