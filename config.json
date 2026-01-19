@@ -1,0 +1,44 @@
+{
+    "web_panel": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "secret_key": "your_secure_secret_key_here",
+        "database": "bot_control.db",
+        "session_timeout": 3600
+    },
+    "bot_servers": [
+        {
+            "name": "PC-1",
+            "ip": "192.168.1.100",
+            "port": 8080,
+            "api_key": "server1_key_123"
+        },
+        {
+            "name": "PC-2",
+            "ip": "192.168.1.101",
+            "port": 8080,
+            "api_key": "server2_key_456"
+        }
+    ],
+    "auto_discovery": {
+        "enabled": true,
+        "scan_interval": 60,
+        "ip_ranges": [
+            "192.168.1.1-255",
+            "192.168.0.1-255"
+        ],
+        "ports": [8080, 8081, 8082]
+    },
+    "security": {
+        "require_authentication": true,
+        "default_users": [
+            {
+                "username": "admin",
+                "password": "admin123",
+                "role": "admin"
+            }
+        ],
+        "api_rate_limit": 100,
+        "ip_whitelist": []
+    }
+}
